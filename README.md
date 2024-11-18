@@ -20,8 +20,8 @@ A secure, flexible multi-signature wallet implementation built with Solidity and
 
 1. Clone the repository:
 
-```git clone <repository-url>
-cd multisig-wallet ```
+```git clone <repository-url>```
+```cd multisig-wallet```
 
 
 2. Install dependencies:
