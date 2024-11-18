@@ -20,8 +20,9 @@ A secure, flexible multi-signature wallet implementation built with Solidity and
 
 1. Clone the repository:
 
-```git clone <repository-url>```
-```cd multisig-wallet```
+```git clone https://github.com/Guap-Codes/Multi-Sig-Wallet.git```
+
+```cd Multi-Sig-Wallet```
 
 
 2. Install dependencies:
