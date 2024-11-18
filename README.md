@@ -1,66 +1,120 @@
-## Foundry
+# MultiSig Wallet
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+A secure, flexible multi-signature wallet implementation built with Solidity and Foundry. Features include timelock functionality, owner management, and factory deployment.
 
-Foundry consists of:
+## Features
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- **Basic MultiSig Functionality**: Requires multiple approvals for transaction execution
+- **Timelock Support**: Optional time delay between approval and execution
+- **Owner Management**: Add/remove owners with multi-sig approval
+- **Factory Pattern**: Easy deployment of new wallet instances
+- **Gas Optimized**: Implements gas-efficient patterns and reentrancy protection
+- **Comprehensive Testing**: Includes unit tests and invariant tests
 
-## Documentation
+## Prerequisites
 
-https://book.getfoundry.sh/
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+- [Git](https://git-scm.com/downloads)
+
+## Installation
+
+1. Clone the repository:
+
+```git clone <repository-url>
+cd multisig-wallet ```
+
+
+2. Install dependencies:
+
+```forge install```
+
+
+3. Copy the environment file and configure your variables:
+
+```cp .env.example .env```
+
 
 ## Usage
 
-### Build
+### Compilation
 
-```shell
-$ forge build
-```
+```forge build```
 
-### Test
 
-```shell
-$ forge test
-```
+### Testing
 
-### Format
+Run all tests:
 
-```shell
-$ forge fmt
-```
+```forge test```
 
-### Gas Snapshots
+Run specific test file:
 
-```shell
-$ forge snapshot
-```
+```forge test --match-path test/MultiSigTest.t.sol```
 
-### Anvil
+Run with verbosity:
 
-```shell
-$ anvil
-```
+```forge test -vvv```
 
-### Deploy
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+### Deployment
 
-### Cast
+1. Configure your `.env` file with appropriate RPC URLs and private key.
 
-```shell
-$ cast <subcommand>
-```
+2. Deploy to testnet (e.g., Sepolia):
 
-### Help
+```forge script script/DeployScript.s.sol --rpc-url $SEPOLIA_RPC_URL --broadcast --verify```
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+
+### Contract Interaction
+
+Use the provided interaction scripts:
+
+Submit a transaction:
+
+```forge script script/InteractionsScript.s.sol:InteractionsScript --sig "submitTransaction(address,address,uint256,bytes)" [WALLET_ADDRESS] [TARGET] [VALUE] [DATA]```
+
+Approve a transaction:
+
+```forge script script/InteractionsScript.s.sol:InteractionsScript --sig "approveTransaction(address,uint256)" [WALLET_ADDRESS] [TX_ID]```
+
+Execute a transaction:
+
+```forge script script/InteractionsScript.s.sol:InteractionsScript --sig "executeTransaction(address,uint256)" [WALLET_ADDRESS] [TX_ID]```
+
+
+## Contract Architecture
+
+- `MultiSigWallet.sol`: Base implementation of multi-signature functionality
+- `MultiSigTimeLock.sol`: Extends base wallet with timelock features
+- `MultiSigFactory.sol`: Factory contract for deploying new wallet instances
+- `MultiSigHelper.sol`: Utility library for transaction encoding
+- `IMultiSigWallet.sol`: Interface defining core functionality
+
+## Testing
+
+The project includes:
+- Unit tests (`MultiSigTest.t.sol`)
+- Invariant tests (`MultiSigInvariantTest.t.sol`)
+- Helper libraries for testing
+
+## Security Considerations
+
+- Implements reentrancy protection
+- Gas-limited external calls
+- Owner management restrictions
+- Timelock functionality for enhanced security
+- Comprehensive testing suite
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+
