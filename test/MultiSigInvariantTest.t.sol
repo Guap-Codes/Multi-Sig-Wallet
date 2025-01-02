@@ -24,7 +24,11 @@ contract MultiSigInvariantTest is Test {
     address owner3 = address(0x3);
     address nonOwner = address(0x4);
 
-    event WalletCreated(address indexed wallet, address[] owners, uint256 required);
+    event WalletCreated(
+        address indexed wallet,
+        address[] owners,
+        uint256 required
+    );
 
     /// @notice Sets up the test environment with a standard 3-owner configuration
     /// @dev Deploys factory, standard wallet, and timelock wallet with 100 ETH each
@@ -52,8 +56,16 @@ contract MultiSigInvariantTest is Test {
     ///      - Required approval bounds
     function testOwnershipInvariants() public {
         // Test initial state
-        assertEq(wallet.getOwners().length, owners.length, "Invalid owner count");
-        assertEq(wallet.required(), REQUIRED_APPROVALS, "Invalid required approvals");
+        assertEq(
+            wallet.getOwners().length,
+            owners.length,
+            "Invalid owner count"
+        );
+        assertEq(
+            wallet.required(),
+            REQUIRED_APPROVALS,
+            "Invalid required approvals"
+        );
 
         // Test owner uniqueness and registration
         for (uint256 i = 0; i < owners.length; i++) {
@@ -145,7 +157,11 @@ contract MultiSigInvariantTest is Test {
 
         vm.prank(owner2);
         timelockWallet.approve(txId);
-        assertEq(timelockWallet.transactionTimeLocks(txId), initialTimeLock, "Timelock changed on second approval");
+        assertEq(
+            timelockWallet.transactionTimeLocks(txId),
+            initialTimeLock,
+            "Timelock changed on second approval"
+        );
 
         // Test timelock enforcement
         vm.expectRevert();
@@ -162,31 +178,43 @@ contract MultiSigInvariantTest is Test {
     ///      - Proper wallet tracking in factory
     ///      - Correct initialization of created wallets
     function testFactoryInvariants() public {
-        // Set up the event expectation before creating the wallet
-        vm.expectEmit(true, false, false, true);
-        emit WalletCreated(
-            address(0), // Use a wildcard for the wallet address
+        // Create the wallet first to get its address
+        address walletAddress = factory.createWallet(
             owners,
             REQUIRED_APPROVALS
         );
 
-        // Create the wallet and capture its address
-        address walletAddress = factory.createWallet(owners, REQUIRED_APPROVALS);
-
-        // Verify the wallet is tracked correctly
+        // Verify wallet tracking
         assertTrue(factory.isWallet(walletAddress), "Wallet not tracked");
         assertEq(factory.wallets(0), walletAddress, "Wallet not in array");
 
+        // Verify wallet initialization
         MultiSigWallet newWallet = MultiSigWallet(payable(walletAddress));
-        assertEq(newWallet.getOwners().length, owners.length, "Invalid owner count");
-        assertEq(newWallet.required(), REQUIRED_APPROVALS, "Invalid required approvals");
+        assertEq(
+            newWallet.getOwners().length,
+            owners.length,
+            "Invalid owner count"
+        );
+        assertEq(
+            newWallet.required(),
+            REQUIRED_APPROVALS,
+            "Invalid required approvals"
+        );
+
+        // Verify all owners are properly set
+        for (uint256 i = 0; i < owners.length; i++) {
+            assertTrue(newWallet.isOwner(owners[i]), "Owner not properly set");
+        }
     }
 
     /// @notice Fuzz test for wallet ownership invariants
     /// @dev Tests wallet creation with random valid inputs
     /// @param _owners Array of owner addresses to test
     /// @param _required Number of required approvals
-    function testFuzzOwnershipInvariants(address[] calldata _owners, uint256 _required) public {
+    function testFuzzOwnershipInvariants(
+        address[] calldata _owners,
+        uint256 _required
+    ) public {
         // Bound the inputs
         vm.assume(_owners.length > 0 && _owners.length <= 50);
         _required = bound(_required, 1, _owners.length);

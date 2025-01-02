@@ -36,7 +36,9 @@ contract MultiSigTest is Test {
 
         // Deploy factory and create wallet
         factory = new MultiSigFactory();
-        wallet = MultiSigWallet(payable(factory.createWallet(owners, requiredApprovals)));
+        wallet = MultiSigWallet(
+            payable(factory.createWallet(owners, requiredApprovals))
+        );
 
         // Deploy timelock wallet
         timelockWallet = new MultiSigTimeLock(owners, requiredApprovals);
@@ -69,8 +71,13 @@ contract MultiSigTest is Test {
         emit Submit(0);
         wallet.submit(to, value, data);
 
-        (address txTo, uint256 txValue, bytes memory txData, bool executed, uint256 approvals) =
-            wallet.getTransaction(0);
+        (
+            address txTo,
+            uint256 txValue,
+            bytes memory txData,
+            bool executed,
+            uint256 approvals
+        ) = wallet.getTransaction(0);
         assertEq(txTo, to);
         assertEq(txValue, value);
         assertEq(txData, data);
@@ -154,7 +161,7 @@ contract MultiSigTest is Test {
         vm.prank(owner1);
         wallet.revoke(0);
 
-        (,,,, uint256 approvals) = wallet.getTransaction(0);
+        (, , , , uint256 approvals) = wallet.getTransaction(0);
         assertEq(approvals, 0);
     }
 
@@ -190,44 +197,111 @@ contract MultiSigTest is Test {
     ///      5. Non-existent transaction
     ///      6. Already executed transaction
     function testFailures() public {
-        // Test 1: Non-owner submit
+        // Setup initial state for tracking success
+        bool allTestsPassed = true;
+
+        try this.testNonOwnerSubmit() {
+            // Test passed
+        } catch {
+            allTestsPassed = false;
+        }
+
+        try this.testInsufficientApprovals() {
+            // Test passed
+        } catch {
+            allTestsPassed = false;
+        }
+
+        try this.testInsufficientBalance() {
+            // Test passed
+        } catch {
+            allTestsPassed = false;
+        }
+
+        try this.testDoubleApproval() {
+            // Test passed
+        } catch {
+            allTestsPassed = false;
+        }
+
+        try this.testNonExistentTransaction() {
+            // Test passed
+        } catch {
+            allTestsPassed = false;
+        }
+
+        try this.testAlreadyExecuted() {
+            // Test passed
+        } catch {
+            allTestsPassed = false;
+        }
+
+        assertTrue(allTestsPassed, "One or more failure tests failed");
+    }
+
+    function testNonOwnerSubmit() public {
         vm.prank(nonOwner);
         vm.expectRevert("not owner");
         wallet.submit(address(5), 1 ether, "");
+    }
 
-        // Test 2: Insufficient approvals
+    function testInsufficientApprovals() public {
         vm.startPrank(owner1);
         wallet.submit(address(5), 1 ether, "");
         wallet.approve(0);
         vm.expectRevert("approvals < required");
         wallet.execute(0);
         vm.stopPrank();
+    }
 
-        // Test 3: Insufficient balance
-        vm.deal(address(wallet), 1 ether); // Reset wallet balance to 1 ether
+    function testInsufficientBalance() public {
+        vm.deal(address(wallet), 1 ether);
         vm.prank(owner1);
         vm.expectRevert("insufficient balance");
         wallet.submit(address(5), 100 ether, "");
+    }
 
-        // Test 4: Double approval
-        vm.prank(owner1);
+    function testDoubleApproval() public {
+        vm.startPrank(owner1);
+        wallet.submit(address(5), 1 ether, "");
+        wallet.approve(0);
         vm.expectRevert("tx already approved");
         wallet.approve(0);
+        vm.stopPrank();
+    }
 
-        // Test 5: Non-existent transaction
+    function testNonExistentTransaction() public {
         vm.prank(owner1);
         vm.expectRevert("tx does not exist");
         wallet.approve(999);
+    }
 
-        // Test 6: Already executed transaction
+    function testAlreadyExecuted() public {
+        address to = address(5);
+        uint256 value = 1 ether;
+        bytes memory data = "";
+
+        // Submit and approve transaction
+        vm.prank(owner1);
+        wallet.submit(to, value, data);
+
+        vm.prank(owner1);
+        wallet.approve(0);
         vm.prank(owner2);
         wallet.approve(0);
+
+        // Execute transaction
         vm.prank(owner1);
         wallet.execute(0);
 
+        // Try to execute again
         vm.prank(owner1);
         vm.expectRevert("tx already executed");
         wallet.execute(0);
+
+        // Verify final state
+        (, , , bool executed, ) = wallet.getTransaction(0);
+        assertTrue(executed, "Transaction should be marked as executed");
     }
 
     /// @notice Tests direct ETH deposits to the wallet
