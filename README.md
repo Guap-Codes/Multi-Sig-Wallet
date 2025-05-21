@@ -20,18 +20,24 @@ A secure, flexible multi-signature wallet implementation built with Solidity and
 
 1. Clone the repository:
 
-```git clone <repository-url>
-cd multisig-wallet ```
+```bash
+git clone https://github.com/Guap-Codes/Multi-Sig-Wallet.git
+cd Multi-Sig-Wallet
+```
 
 
 2. Install dependencies:
 
-```forge install```
+```
+forge install
+```
 
 
 3. Copy the environment file and configure your variables:
 
-```cp .env.example .env```
+```
+cp .env.example .env
+```
 
 
 ## Usage
@@ -84,17 +90,17 @@ Execute a transaction:
 
 ## Contract Architecture
 
-- `MultiSigWallet.sol`: Base implementation of multi-signature functionality
-- `MultiSigTimeLock.sol`: Extends base wallet with timelock features
-- `MultiSigFactory.sol`: Factory contract for deploying new wallet instances
-- `MultiSigHelper.sol`: Utility library for transaction encoding
-- `IMultiSigWallet.sol`: Interface defining core functionality
+- MultiSigWallet.sol: Base implementation of multi-signature functionality
+- MultiSigTimeLock.sol: Extends base wallet with timelock features
+- MultiSigFactory.sol: Factory contract for deploying new wallet instances
+- MultiSigHelper.sol: Utility library for transaction encoding
+- IMultiSigWallet.sol: Interface defining core functionality
 
 ## Testing
 
 The project includes:
-- Unit tests (`MultiSigTest.t.sol`)
-- Invariant tests (`MultiSigInvariantTest.t.sol`)
+- Unit tests (MultiSigTest.t.sol)
+- Invariant tests (MultiSigInvariantTest.t.sol)
 - Helper libraries for testing
 
 ## Security Considerations
@@ -115,6 +121,6 @@ The project includes:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE]|(LICENSE) file for details.
 
 
