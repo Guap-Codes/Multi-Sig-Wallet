@@ -188,64 +188,14 @@ contract MultiSigTest is Test {
         assertEq(wallet.getOwners().length, 4);
     }
 
-    /// @notice Tests various failure scenarios
-    /// @dev Verifies proper reversion for invalid operations:
-    ///      1. Non-owner submission
-    ///      2. Insufficient approvals
-    ///      3. Insufficient balance
-    ///      4. Double approval
-    ///      5. Non-existent transaction
-    ///      6. Already executed transaction
-    function testFailures() public {
-        // Setup initial state for tracking success
-        bool allTestsPassed = true;
 
-        try this.testNonOwnerSubmit() {
-            // Test passed
-        } catch {
-            allTestsPassed = false;
-        }
-
-        try this.testInsufficientApprovals() {
-            // Test passed
-        } catch {
-            allTestsPassed = false;
-        }
-
-        try this.testInsufficientBalance() {
-            // Test passed
-        } catch {
-            allTestsPassed = false;
-        }
-
-        try this.testDoubleApproval() {
-            // Test passed
-        } catch {
-            allTestsPassed = false;
-        }
-
-        try this.testNonExistentTransaction() {
-            // Test passed
-        } catch {
-            allTestsPassed = false;
-        }
-
-        try this.testAlreadyExecuted() {
-            // Test passed
-        } catch {
-            allTestsPassed = false;
-        }
-
-        assertTrue(allTestsPassed, "One or more failure tests failed");
-    }
-
-    function testNonOwnerSubmit() public {
+    function test_RevertWhen_NonOwnerSubmitsTransaction() public {
         vm.prank(nonOwner);
         vm.expectRevert("not owner");
         wallet.submit(address(5), 1 ether, "");
     }
 
-    function testInsufficientApprovals() public {
+    function test_RevertWhen_InsufficientApprovals() public {
         vm.startPrank(owner1);
         wallet.submit(address(5), 1 ether, "");
         wallet.approve(0);
@@ -254,14 +204,14 @@ contract MultiSigTest is Test {
         vm.stopPrank();
     }
 
-    function testInsufficientBalance() public {
+    function test_RevertWhen_InsufficientBalance() public {
         vm.deal(address(wallet), 1 ether);
         vm.prank(owner1);
         vm.expectRevert("insufficient balance");
         wallet.submit(address(5), 100 ether, "");
     }
 
-    function testDoubleApproval() public {
+    function test_RevertWhen_DoubleApproval() public {
         vm.startPrank(owner1);
         wallet.submit(address(5), 1 ether, "");
         wallet.approve(0);
@@ -270,13 +220,13 @@ contract MultiSigTest is Test {
         vm.stopPrank();
     }
 
-    function testNonExistentTransaction() public {
+    function test_RevertWhen_ApprovingNonExistentTransaction() public {
         vm.prank(owner1);
         vm.expectRevert("tx does not exist");
         wallet.approve(999);
     }
 
-    function testAlreadyExecuted() public {
+    function test_RevertWhen_ExecutingAlreadyExecutedTx() public {
         address to = address(5);
         uint256 value = 1 ether;
         bytes memory data = "";
@@ -303,6 +253,8 @@ contract MultiSigTest is Test {
         (, , , bool executed, ) = wallet.getTransaction(0);
         assertTrue(executed, "Transaction should be marked as executed");
     }
+
+// ----------------------------------------------------------------
 
     /// @notice Tests direct ETH deposits to the wallet
     /// @dev Verifies Deposit event emission

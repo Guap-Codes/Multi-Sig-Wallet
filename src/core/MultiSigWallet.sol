@@ -4,7 +4,6 @@ pragma solidity 0.8.10;
 import "../interfaces/IMultiSigWallet.sol";
 
 /// @title Multi-Signature Wallet
-/// @author [Your Name]
 /// @notice A wallet that requires multiple signatures to execute transactions
 /// @dev Implements a multi-signature wallet with owner management capabilities
 contract MultiSigWallet is IMultiSigWallet {
