@@ -22,7 +22,7 @@ A secure, flexible multi-signature wallet implementation built with Solidity and
 
 ```bash
 git clone https://github.com/Guap-Codes/Multi-Sig-Wallet.git
-cd multisig-wallet
+cd Multi-Sig-Wallet
 ```
 
 
